@@ -3,19 +3,19 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>TP2-MiniProjet-Hockey</title>
+    <title>Air Soccer</title>
     <style>
         body {
             margin: 0px;
             padding: 0px;
         }
 
-        #fondDemarrer, 
-        #monFond,
-        #but,
-        #poigneeJoueur,
-        #poigneeAdversaire,
-        #ballon,
+        #startBackground,
+        #background,
+        #goal,
+        #playerPaddle,
+        #opponentPaddle,
+        #ball,
         #score
         {
             position: absolute;
@@ -23,15 +23,15 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
-        #tutoriel
+        #tutorial
         {
             position: absolute;
             top: 105%;
             left: 50%;
             transform: translate(-50%, -50%);
         }
-        
-        .bouton {
+
+        .button {
             background-color: #f4511e;
             border: none;
             border-radius: 12px;
@@ -46,37 +46,37 @@
             text-decoration: none;
             cursor: pointer;
         }
-        #BoutonDemarrer:hover {
+        #startButton:hover {
             opacity: 1
         }
 
-        #BoutonDemarrer{
+        #startButton{
             position: absolute;
-            bottom: 50px;  
+            bottom: 50px;
             left: 50%;
             transform: translate(-50%, -50%);
-            
+
         }
-        
+
     </style>
 </head>
 
 <body>
-    <canvas id="fondDemarrer" width="1020" height="480"></canvas>
+    <canvas id="startBackground" width="1020" height="480"></canvas>
 
-    <canvas id="monFond" width="1020" height="480"></canvas>
-    <canvas id="but" width="1020" height="480"></canvas>
-    <canvas id="poigneeJoueur" width="1020" height="480"></canvas>
-    <canvas id="poigneeAdversaire" width="1020" height="480"></canvas>
-    <canvas id="ballon" width="1020" height="480"></canvas>
+    <canvas id="background" width="1020" height="480"></canvas>
+    <canvas id="goal" width="1020" height="480"></canvas>
+    <canvas id="playerPaddle" width="1020" height="480"></canvas>
+    <canvas id="opponentPaddle" width="1020" height="480"></canvas>
+    <canvas id="ball" width="1020" height="480"></canvas>
     <canvas id="score" width="1020" height="480"></canvas>
-    <canvas id="tutoriel" width="840" height="250"></canvas>
+    <canvas id="tutorial" width="840" height="250"></canvas>
 
-    <button class="bouton" id="BoutonDemarrer">Demarrer</button>
+    <button class="button" id="startButton">Start</button>
 
 
 
-    <script type="module" src="./js/prgTP2.js"></script>
+    <script type="module" src="./js/airSoccer.js"></script>
 </body>
 
 </html>
