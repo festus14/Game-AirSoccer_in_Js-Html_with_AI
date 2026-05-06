@@ -1,3 +1,5 @@
+import { WIN_SCORE as DEFAULT_WIN_SCORE } from './config.js';
+
 //Create the start screen image of the game
 let cnv_startBackground = document.getElementById('startBackground');
 let ctx_startBackground = cnv_startBackground.getContext('2d');
@@ -21,6 +23,15 @@ startButton.addEventListener("click", function() {
 function game(){
     //hide the start button
     startButton.style.display = "none";
+
+    // Read the win-score threshold at game start so tests can override it via window.__WIN_SCORE_OVERRIDE
+    const winScore = (typeof window !== 'undefined' && window.__WIN_SCORE_OVERRIDE)
+        ? window.__WIN_SCORE_OVERRIDE
+        : DEFAULT_WIN_SCORE;
+
+    // Game-end state
+    let isOver = false;
+    let winner = null;
 
 
     // Use the HTML canvas for the playing field background in an almost white color
@@ -151,6 +162,72 @@ function game(){
         ctx_score.fillText(`${playerScore} : ${opponentScore}`, (width_cnv_background / 2)- line_size , line_size *2);
     }
 
+    //End-of-game flow: mark over, dispatch event, then reveal modal
+    function endGame(winnerSide) {
+        isOver = true;
+        winner = winnerSide;
+
+        // Freeze the ball
+        ballSpeedX = 0;
+        ballSpeedY = 0;
+
+        // Dispatch the event AFTER isOver flips to true and BEFORE the modal becomes visible
+        document.dispatchEvent(new CustomEvent('gameend', {
+            detail: {
+                playerScore: playerScore,
+                opponentScore: opponentScore,
+                winner: winnerSide,
+            },
+        }));
+
+        // Reveal the modal with the winner text and final score
+        const modal = document.getElementById('gameend-modal');
+        const title = document.getElementById('gameend-title');
+        const scoreEl = document.getElementById('gameend-score');
+        title.textContent = (winnerSide === 'player') ? 'Player wins!' : 'AI wins!';
+        scoreEl.textContent = `${playerScore} - ${opponentScore}`;
+        modal.style.display = 'block';
+    }
+
+    //Records a goal for the given side and triggers end-of-game when the threshold is reached
+    function recordGoal(side) {
+        if (isOver) return;
+        if (side === 'player') {
+            playerScore++;
+        } else if (side === 'ai') {
+            opponentScore++;
+        } else {
+            return;
+        }
+        update_score();
+        if (playerScore >= winScore) {
+            endGame('player');
+        } else if (opponentScore >= winScore) {
+            endGame('ai');
+        }
+    }
+
+    //Restart: reset scores, reset ball, hide modal, re-enable play
+    function restartGame() {
+        isOver = false;
+        winner = null;
+        playerScore = 0;
+        opponentScore = 0;
+        update_score();
+
+        // Re-center the ball
+        posX_Ball = cnv.width / 2;
+        posY_Ball = cnv.height / 2;
+        ballSpeedX = 0;
+        ballSpeedY = 0;
+
+        const modal = document.getElementById('gameend-modal');
+        modal.style.display = 'none';
+    }
+
+    // Wire up the restart button
+    document.getElementById('restart-button').addEventListener('click', restartGame);
+
     //To get the mouse position on the X or Y axis
     addEventListener("mousemove", (e) => {
         //We shifted the top-left corner of the canvases to center the page, we will get its coordinates
@@ -222,6 +299,7 @@ function game(){
 
     function move_collisionBall() {
         requestAnimationFrame(move_collisionBall);
+        if (isOver) return;
 
         // Update the ball's position
         posX_Ball += ballSpeedX;
@@ -336,9 +414,8 @@ function game(){
             ballSpeedY = 0;
             posX_Ball = width_cnv_background / 4;
 
-            //We increase the opponent's score
-            opponentScore++;
-            update_score();
+            //Route through recordGoal so tests and gameplay share the same scoring path
+            recordGoal('ai');
         }
 
         //if the player manages to score on the opponent's side
@@ -347,9 +424,8 @@ function game(){
             ballSpeedY = 0;
             posX_Ball = 3* (width_cnv_background / 4);
 
-            //We increase the player's score
-            playerScore++;
-            update_score();
+            //Route through recordGoal so tests and gameplay share the same scoring path
+            recordGoal('player');
         }
 
 
@@ -387,6 +463,7 @@ function game(){
 
     function auto_movement_opponentPaddle() {
         requestAnimationFrame(auto_movement_opponentPaddle);
+        if (isOver) return;
 
         // Calculate the opponent's direction to follow the ball
         let directionX = posX_Ball - posXOpponentPaddle;
@@ -499,6 +576,19 @@ function game(){
     auto_movement_opponentPaddle();
 
 
+    // Programmatic test surface — exposed once the game has started
+    window.AirSoccer = {
+        getState() {
+            return {
+                playerScore: playerScore,
+                opponentScore: opponentScore,
+                isOver: isOver,
+                winner: winner,
+            };
+        },
+        recordGoal: recordGoal,
+        restart: restartGame,
+    };
 
 }
 

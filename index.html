@@ -58,6 +58,42 @@
 
         }
 
+        #gameend-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 2px solid #333;
+            padding: 32px 48px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            font-family: Arial, sans-serif;
+            min-width: 280px;
+        }
+        #gameend-modal h2 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+        #gameend-modal p {
+            margin: 0 0 20px;
+            font-size: 22px;
+        }
+        #restart-button {
+            background-color: #f4511e;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            padding: 12px 28px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #restart-button:hover {
+            opacity: 0.85;
+        }
+
     </style>
 </head>
 
@@ -74,7 +110,11 @@
 
     <button class="button" id="startButton">Start</button>
 
-
+    <div id="gameend-modal" data-testid="gameend-modal" style="display: none;">
+        <h2 id="gameend-title"></h2>
+        <p id="gameend-score"></p>
+        <button id="restart-button" data-testid="restart-button">Play Again</button>
+    </div>
 
     <script type="module" src="./js/airSoccer.js"></script>
 </body>
